@@ -1,0 +1,5 @@
+%li.page-item{ class: "#{'active' if page.current?}" }
+  = link_to url, class: "page-link", remote: remote do
+    = page
+    - if page.current?
+      %span.sr-only (current)

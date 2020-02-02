@@ -1,0 +1,22 @@
+%h2 #{Ticket.model_name.human}残り：#{@user.usable_ticket_count}
+
+%br/
+
+%h2 購入履歴
+
+%table.table
+  %thead.thead-dark
+    %tr
+      %th{ scope: 'col' }= Ticket.human_attribute_name :created_at
+      %th{ scope: 'col' }= Ticket.human_attribute_name :number_owned
+      %th{ scope: 'col' }= Ticket.human_attribute_name :number_used
+
+  %tbody
+    - @tickets.each do |ticket|
+      %tr
+        %td= ticket.created_at.strftime('%Y年%m月%d日')
+        %td= ticket.ticket_name
+        %td= ticket.number_used
+= paginate @tickets
+
+= link_to "新しい#{Ticket.model_name.human}の購入", new_user_ticket_path(@user), class: 'btn btn-primary'

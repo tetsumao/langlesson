@@ -1,0 +1,6 @@
+%h2 #{Lesson.model_name.human}を編集
+
+= render 'form'
+
+= link_to '表示', teacher_lesson_path(@user, @lesson), class: 'btn btn-outline-dark'
+= link_to "戻る", :back, class: 'btn btn-outline-secondary'

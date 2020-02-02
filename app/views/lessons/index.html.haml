@@ -1,0 +1,9 @@
+%h2 予約済#{Lesson.model_name.human}一覧
+
+= render 'list', {lessons: @lessons, columns: [:id, :date_at, :period_name, :category_name, :student_name, :zoom_url, :show]}
+
+%h2 予約前#{Lesson.model_name.human}一覧
+
+= render 'list', {lessons: @reservable_lessons, columns: [:id, :date_at, :period_name, :category_name, :show, :edit, :delete]}
+
+= link_to "新しい#{Lesson.model_name.human}", new_teacher_lesson_path(@user), class: 'btn btn-primary'

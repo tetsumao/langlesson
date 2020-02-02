@@ -1,0 +1,28 @@
+-# frozen_string_literal: true
+= simple_form_for(@user, url: (@user.new_record? ? teachers_path : teacher_path(@user))) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+
+  .form-inputs
+    - if current_user.admin?
+      = f.input :email, required: true, autofocus: true
+      - if @user.new_record?
+        = f.input :password, required: true
+      - else
+        = f.input :password, hint: "変更しないなら空欄にしてください", required: false
+    = f.input :user_name, required: true
+    = f.input :picture, required: true, as: :file
+    - if @user.picture.present?
+      .text-center= image_tag @user.picture.url
+    = f.input :profile, required: true, hint: "200文字以内"
+
+    -# 言語は5個まで選択可能としておく
+    - (5 - @user.user_categories.length).times {@user.user_categories.build}
+    - select_collection = category_select_collection(Category.all)
+    - category_label = '教えられる言語'
+    = f.fields_for :user_categories do |tf|
+      = tf.input :category_id, as: :select, collection: select_collection, include_blank: true, label: category_label
+      - category_label = false
+
+  .form-actions.text-center
+    = f.button :submit, class: 'btn btn-primary'

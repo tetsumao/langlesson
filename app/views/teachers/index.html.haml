@@ -1,0 +1,26 @@
+%h2 #{User.human_attribute_name 'authority.teacher'}一覧
+
+%table.table
+  %thead.thead-dark
+    %tr
+      %th{ scope: 'col' } ID
+      %th{ scope: 'col' }= User.human_attribute_name :email
+      %th{ scope: 'col' }= User.human_attribute_name :teacher_name
+      %th{ scope: 'col' }= User.human_attribute_name :categories
+      %th
+      %th
+      %th
+
+  %tbody
+    - @users.each do |user|
+      %tr
+        %td= user.id
+        %td= user.email
+        %td= user.user_name
+        %td= user.categories.pluck(:category_name).join(', ')
+        %td= link_to '表示', teacher_path(user), class: 'btn btn-outline-dark btn-sm'
+        %td= link_to '編集', edit_teacher_path(user), class: 'btn btn-outline-info btn-sm'
+        %td= link_to '削除', teacher_path(user), class: 'btn btn-danger btn-sm', method: :delete, data: { confirm: '削除してよろしいですか？' }
+= paginate @users
+
+= link_to "新しい#{User.human_attribute_name 'authority.teacher'}", new_teacher_path, class: 'btn btn-primary'

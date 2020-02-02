@@ -1,0 +1,32 @@
+%h2 空き#{Lesson.model_name.human}検索
+
+.serach-form
+  = form_with(scope: :search, url: lessons_search_path, method: :get, local: true, class: 'simple_form') do |f|
+    .form-inputs.form-group
+      = f.label :teacher_name, Lesson.human_attribute_name(:teacher_name)
+      = f.text_field :teacher_name, class: 'form-control mx-1', value: @search_params[:teacher_name]
+    .field
+      = f.label :date_at, Lesson.human_attribute_name(:date_at)
+    .form-inputs.row.form-group
+      .col-lg-5
+        = f.date_field :date_from, value: @search_params[:date_from], class: 'form-control mx-1'
+      .col-lg-2.d-flex.align-items-center.text-center
+        %span.mx-auto ～
+      .col-lg-5
+        = f.date_field :date_to, value: @search_params[:date_to], class: 'form-control mx-1'
+    .field
+      = f.label :time_at, Lesson.human_attribute_name(:time)
+    .form-inputs.row.form-group
+      .col-lg-5
+        = f.time_field :time_from, value: @search_params[:time_from], class: 'form-control mx-1'
+      .col-lg-2.d-flex.align-items-center.text-center
+        %span.mx-auto ～
+      .col-lg-5
+        = f.time_field :time_to, value: @search_params[:time_to], class: 'form-control mx-1'
+    .form-inputs.form-group
+      = f.label :category_id, Lesson.human_attribute_name(:category_id)
+      = f.collection_select :category_id, Category.all, :id, :category_name, {selected: @search_params[:category_id], include_blank: true}, class: 'form-control mx-1'
+    .form-actions.text-center.form-group
+      = f.submit '検索する', class: 'btn btn-primary'
+
+= render 'list', {lessons: @lessons, columns: [:date_at, :teacher_name, :period_name, :category_name, :show]}

@@ -1,0 +1,22 @@
+%h2 #{Period.model_name.human}一覧
+
+%table.table
+  %thead.thead-dark
+    %tr
+      %th{ scope: 'col' } ID
+      %th{ scope: 'col' }= Period.human_attribute_name :start_time
+      %th{ scope: 'col' }= Period.human_attribute_name :end_time
+      %th
+      %th
+
+  %tbody
+    - @periods.each do |period|
+      %tr
+        %td= period.id
+        %td= period.start_time
+        %td= period.end_time
+        %td= link_to '編集', edit_period_path(period), class: 'btn btn-outline-info btn-sm'
+        %td= link_to '削除', period, class: 'btn btn-danger btn-sm', method: :delete, data: { confirm: '削除してよろしいですか？' }
+= paginate @periods
+
+= link_to "新しい#{Period.model_name.human}", new_period_path, class: 'btn btn-primary'

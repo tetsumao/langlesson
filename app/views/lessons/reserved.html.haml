@@ -1,0 +1,7 @@
+%h2 予約済み#{Lesson.model_name.human}一覧
+
+= render 'list', {lessons: @lessons, columns: [:date_at, :teacher_name, :period_name, :category_name, :zoom_url, :show]}
+
+%h2 終了済み#{Lesson.model_name.human}一覧
+
+= render 'list', {lessons: @finished_lessons, columns: [:date_at, :teacher_name, :period_name, :category_name, :zoom_url, :show]}

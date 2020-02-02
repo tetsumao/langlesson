@@ -1,0 +1,12 @@
+-# frozen_string_literal: true
+= simple_form_for([@user, @lesson], url: (@lesson.new_record? ? teacher_lessons_path(@user) : teacher_lesson_path(@user, @lesson))) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+
+  .form-inputs
+    = f.input :date_at, as: :date, html5: true
+    = f.input :period_id, as: :select, collection: period_select_collection(Period.all), include_blank: false
+    = f.input :category_id, as: :select, collection: category_select_collection(@user.categories), include_blank: false
+
+  .form-actions.text-center
+    = f.button :submit, class: 'btn btn-primary'

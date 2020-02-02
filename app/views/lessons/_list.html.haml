@@ -1,0 +1,48 @@
+%table.table
+  %thead.thead-dark
+    %tr
+      - if columns.include?(:id)
+        %th{ scope: 'col' } ID
+      - if columns.include?(:date_at)
+        %th{ scope: 'col' }= Lesson.human_attribute_name :date_at
+      - if columns.include?(:teacher_name)
+        %th{ scope: 'col' }= Lesson.human_attribute_name :teacher_name
+      - if columns.include?(:period_name)
+        %th{ scope: 'col' }= Period.human_attribute_name :period_name
+      - if columns.include?(:category_name)
+        %th{ scope: 'col' }= Category.human_attribute_name :category_name
+      - if columns.include?(:student_name)
+        %th{ scope: 'col' }= Lesson.human_attribute_name :student_name
+      - if columns.include?(:zoom_url)
+        %th{ scope: 'col' }= Lesson.human_attribute_name :zoom_url
+      - if columns.include?(:show)
+        %th
+      - if columns.include?(:edit)
+        %th
+      - if columns.include?(:delete)
+        %th
+
+  %tbody
+    - lessons.each do |lesson|
+      %tr
+        - if columns.include?(:id)
+          %td= lesson.id
+        - if columns.include?(:date_at)
+          %td= lesson.date_at
+        - if columns.include?(:teacher_name)
+          %td= link_to lesson.user.user_name, teacher_path(lesson.user)
+        - if columns.include?(:period_name)
+          %td= lesson.period.period_name
+        - if columns.include?(:category_name)
+          %td= lesson.category.category_name
+        - if columns.include?(:student_name)
+          %td= lesson.ticket.user.user_name if lesson.ticket.present?
+        - if columns.include?(:zoom_url)
+          %td= lesson.zoom_url.present? ? link_to(lesson.zoom_url, lesson.zoom_url, target: ["_blank"]) : nil
+        - if columns.include?(:show)
+          %td= link_to '表示', teacher_lesson_path(lesson.user, lesson), class: 'btn btn-outline-dark btn-sm'
+        - if columns.include?(:edit)
+          %td= link_to '編集', edit_teacher_lesson_path(lesson.user, lesson), class: 'btn btn-outline-info btn-sm'
+        - if columns.include?(:delete)
+          %td= link_to '削除', teacher_lesson_path(lesson.user, lesson), class: 'btn btn-danger btn-sm', method: :delete, data: {confirm: '削除してよろしいですか？'}
+= paginate lessons

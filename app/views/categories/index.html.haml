@@ -1,0 +1,22 @@
+%h2 #{Category.model_name.human}一覧
+
+%table.table
+  %thead.thead-dark
+    %tr
+      %th{ scope: 'col' } ID
+      %th{ scope: 'col' }= Category.human_attribute_name :category_name
+      %th{ scope: 'col' }= Category.human_attribute_name :dspo
+      %th
+      %th
+
+  %tbody
+    - @categories.each do |category|
+      %tr
+        %td= category.id
+        %td= category.category_name
+        %td= category.dspo
+        %td= link_to '編集', edit_category_path(category), class: 'btn btn-outline-info btn-sm'
+        %td= link_to '削除', category, class: 'btn btn-danger btn-sm', method: :delete, data: { confirm: '削除してよろしいですか？' }
+= paginate @categories
+
+= link_to "新しい#{Category.model_name.human}", new_category_path, class: 'btn btn-primary'

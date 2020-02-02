@@ -1,0 +1,6 @@
+%li.page-item.prev{ class: "#{'disabled' if current_page.first?}" }
+  = link_to (current_page.first? ? "#" : url), class: "page-link", "aria-label" => "First", :remote => remote do
+    %span{"aria-hidden" => "true"} «
+    %span.sr-only
+      = t('views.pagination.first').html_safe
+      

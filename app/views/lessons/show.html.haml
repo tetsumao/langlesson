@@ -1,0 +1,27 @@
+%h2 #{Lesson.model_name.human}(#{@lesson.summary}) の詳細
+.card.mb-3
+  .card-header= Lesson.human_attribute_name :date_at
+  .card-body= @lesson.date_at
+.card.mb-3
+  .card-header= Lesson.human_attribute_name :period_id
+  .card-body= @lesson.period.period_name
+.card.mb-3
+  .card-header= Lesson.human_attribute_name :category_id
+  .card-body= @lesson.category.category_name
+.card.mb-3
+  .card-header= Lesson.human_attribute_name :teacher_name
+  .card-body= link_to @lesson.user.user_name, teacher_path(@lesson.user)
+- if @lesson.reserved?
+  .card.mb-3
+    .card-header= Lesson.human_attribute_name :student_name
+    .card-body= @lesson.ticket.user.user_name
+  .card.mb-3
+    .card-header= Lesson.human_attribute_name :zoom_url
+    .card-body= link_to @lesson.zoom_url, @lesson.zoom_url
+
+- unless @lesson.reserved?
+  - if current_user.admin? || current_user.teacher?
+    = link_to '編集', edit_teacher_lesson_path(@user, @lesson), class: 'btn btn-primary'
+  - elsif !@lesson.finished?
+    = link_to "予約する", reserve_teacher_lesson_path(@user, @lesson), method: :post, class: 'btn btn-primary', data: { confirm: "チケットを使用して予約しますか？" }
+= link_to '戻る', :back, class: 'btn btn-outline-secondary'

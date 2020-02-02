@@ -1,0 +1,62 @@
+!!!
+%html
+  %head
+    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+    %title Langlesson
+    = csrf_meta_tags
+    = csp_meta_tag
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
+    = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
+    = javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
+  %body
+    - if notice
+      %p.notice
+        = notice
+    - if alert
+      %p.alert
+        = alert
+    .fixed-top
+      %nav.navbar.navbar-expand-md.navbar-dark{class: user_signed_in? ? (current_user.admin? ? 'bg-dark' : (current_user.teacher? ? 'bg-primary' : 'bg-info')) : 'bg-info'}
+        .container
+          = link_to 'langlesson', root_path, class: 'navbar-brand'
+          %button.navbar-toggler{type: 'button', 'data-toggle': 'collapse', 'data-target': '#navbarNavDropdown', 'aria-controls': 'navbarNavDropdown', 'aria-expanded': false, 'aria-label': 'Toggle navigation'}
+            %span.navbar-toggler-icon
+          .collapse.navbar-collapse#navbarNavDropdown
+            - if user_signed_in?
+              %ul.navbar-nav.mr-auto
+                - if current_user.admin?
+                  %li.nav-item
+                    %a.nav-link{href: teachers_path}
+                      講師一覧
+                  %li.nav-item
+                    %a.nav-link{href: categories_path}
+                      言語一覧
+                  %li.nav-item
+                    %a.nav-link{href: periods_path}
+                      時間枠一覧
+                - elsif current_user.teacher?
+                  %li.nav-item
+                    %a.nav-link{href: teacher_lessons_path(current_user)}
+                      レッスン一覧
+                  %li.nav-item
+                    %a.nav-link{href: history_teacher_lessons_path(current_user)}
+                      レッスン実施履歴
+                - else
+                  %li.nav-item
+                    %a.nav-link{href: lessons_reserved_path}
+                      予約済レッスン
+                  %li.nav-item
+                    %a.nav-link{href: lessons_search_path}
+                      レッスン検索
+                  %li.nav-item
+                    %a.nav-link{href: user_tickets_path(current_user)}
+                      チケット
+              %ul.navbar-nav
+                %li.nav-item
+                  %a.nav-link{href: current_user_path}
+                    #{current_user.user_name} さん
+                %li.nav-item
+                  %a.nav-link{href: destroy_user_session_path, 'data-method': :delete}
+                    ログアウト
+    .container
+      = yield

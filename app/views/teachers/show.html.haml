@@ -1,0 +1,17 @@
+%h2 #{@user.user_name} さんのプロフィール
+- if @user.picture.present?
+  .text-center= image_tag @user.picture.url
+.card.mb-3
+  .card-header= User.human_attribute_name :profile
+  %pre.card-body= @user.profile
+.card.mb-3
+  .card-header= User.human_attribute_name :categories
+  .card-body= @user.categories.pluck(:category_name).join(', ')
+
+- if current_user.admin?
+  = link_to "講師の編集", edit_teacher_path(@user), class: 'btn btn-primary'
+  = link_to "代理ログイン", proxy_sign_in_teacher_path(@user), method: :post, class: 'btn btn-warning', data: { confirm: "代理ログインしますか？\nアカウントを戻すには再ログインしてください。" }
+- elsif @user == current_user
+  = link_to "プロフィール編集", edit_teacher_path(@user), class: 'btn btn-primary'
+  = link_to "アカウント編集", edit_user_registration_path, class: 'btn btn-primary'
+= link_to "戻る", :back, class: 'btn btn-outline-secondary'
