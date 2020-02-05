@@ -1,8 +1,9 @@
 class LessonsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_user, except: [:search, :reserved]
-  before_action :set_lesson, only: [:show, :edit, :update, :destroy, :reserve]
-  before_action :confirm_reserved, only: [:edit, :update, :destroy]
+  before_action :set_lesson, only: [:show, :edit, :update, :destroy, :edit_report, :update_report, :reserve]
+  before_action :confirm_reservable, only: [:edit, :update, :destroy]
+  before_action :confirm_finished, only: [:edit_report, :update_report]
   authorize_resource
 
   def index
@@ -14,7 +15,11 @@ class LessonsController < ApplicationController
     @lessons = @user.lessons.fineshed.not_reservables.order_desc.page(params[:page]).per(20)
   end
 
+  # 講師/生徒両用
   def show
+    if current_user.student? && @lesson.ticket.present? && current_user != @lesson.ticket.user
+      redirect_to root_path, notice: "他のユーザの#{Lesson.model_name.human}は閲覧できません。"
+    end
   end
 
   def new
@@ -53,6 +58,19 @@ class LessonsController < ApplicationController
     end
   end
 
+  def edit_report
+  end
+
+  def update_report
+    respond_to do |format|
+      if @lesson.update(lesson_report_params)
+        format.html { redirect_to teacher_lesson_path(@user, @lesson), notice: "#{Lesson.model_name.human}を更新しました。" }
+      else
+        format.html { render :update_report }
+      end
+    end
+  end
+
   # 以下、生徒向け
   def search
     @search_params = lesson_serach_params
@@ -69,7 +87,7 @@ class LessonsController < ApplicationController
   def reserve
     respond_to do |format|
       if @lesson.reserve(current_user)
-        format.html { redirect_to root_path, notice: "#{Lesson.model_name.human}を予約しました。" }
+        format.html { redirect_to teacher_lesson_path(@user, @lesson), notice: "#{Lesson.model_name.human}を予約しました。" }
       else
         format.html { render :show }
       end
@@ -88,14 +106,23 @@ class LessonsController < ApplicationController
     def set_lesson
       @lesson = @user.lessons.find(params[:id])
     end
-    def confirm_reserved
+    def confirm_reservable
       if @lesson.reserved?
         redirect_to teacher_lesson_path(@user, @lesson), notice: "予約済みの#{Lesson.model_name.human}は編集・削除できません。"
       end
     end
+    def confirm_finished
+      unless @lesson.reserved? && @lesson.finished?
+        redirect_to teacher_lesson_path(@user, @lesson), notice: "レッスン実施済の#{Lesson.model_name.human}のみ報告できます。"
+      end
+    end
 
     def lesson_params
-      params.require(:lesson).permit(:user_id, :date_at, :period_id, :category_id)
+      params.require(:lesson).permit(:date_at, :period_id, :category_id)
+    end
+
+    def lesson_report_params
+      params.require(:lesson).permit(:feedback, :report)
     end
 
     def lesson_serach_params

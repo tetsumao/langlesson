@@ -44,7 +44,10 @@ ja:
         date_at: 実施日
         period_id: 時間枠
         category_id: 言語
+        ticket: チケット
         zoom_url: Zoom.us URL
+        feedback: フィードバック
+        report: 申し送り
         teacher_name: 講師名
         student_name: 生徒名
         time: 時刻

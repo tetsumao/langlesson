@@ -1,27 +1,56 @@
 %h2 #{Lesson.model_name.human}(#{@lesson.summary}) の詳細
-.card.mb-3
-  .card-header= Lesson.human_attribute_name :date_at
-  .card-body= @lesson.date_at
-.card.mb-3
-  .card-header= Lesson.human_attribute_name :period_id
-  .card-body= @lesson.period.period_name
-.card.mb-3
-  .card-header= Lesson.human_attribute_name :category_id
-  .card-body= @lesson.category.category_name
-.card.mb-3
-  .card-header= Lesson.human_attribute_name :teacher_name
-  .card-body= link_to @lesson.user.user_name, teacher_path(@lesson.user)
-- if @lesson.reserved?
-  .card.mb-3
-    .card-header= Lesson.human_attribute_name :student_name
-    .card-body= @lesson.ticket.user.user_name
-  .card.mb-3
-    .card-header= Lesson.human_attribute_name :zoom_url
-    .card-body= link_to @lesson.zoom_url, @lesson.zoom_url
+- if @lesson.errors.any?
+  .alert.alert-warning
+    - @lesson.errors.full_messages.each do |message|
+      %li.alert= message
 
-- unless @lesson.reserved?
+.row.mb-3
+  .col-4.p-1
+    .card
+      .card-header= Lesson.human_attribute_name :date_at
+      .card-body= @lesson.date_at
+  .col-4.p-1
+    .card
+      .card-header= Lesson.human_attribute_name :period_id
+      .card-body= @lesson.period.period_name
+  .col-4.p-1
+    .card
+      .card-header= Lesson.human_attribute_name :category_id
+      .card-body= @lesson.category.category_name
+  .col-3.p-1
+    .card
+      .card-header= Lesson.human_attribute_name :teacher_name
+      .card-body= link_to @lesson.user.user_name, teacher_path(@lesson.user)
+  - if @lesson.reserved?
+    .col-3.p-1
+      .card
+        .card-header= Lesson.human_attribute_name :student_name
+        .card-body= link_to @lesson.ticket.user.user_name, user_path(@lesson.ticket.user)
+    .col-6.p-1
+      .card
+        .card-header= Lesson.human_attribute_name :zoom_url
+        .card-body= link_to @lesson.zoom_url, @lesson.zoom_url
+    - if @lesson.finished?
+      - if current_user.admin? || current_user.teacher?
+        .col-12.p-1
+          .card
+            .card-header= Lesson.human_attribute_name :report
+            .card-body
+              %pre= @lesson.report
+      - if current_user.admin? || current_user.student? || current_user == @lesson.user
+        .col-12.p-1
+          .card
+            .card-header= Lesson.human_attribute_name :feedback
+            .card-body
+              %pre= @lesson.feedback
+
+- if @lesson.reserved?
+  - if current_user.teacher? && @lesson.finished?
+    = link_to '報告', edit_report_teacher_lesson_path(@user, @lesson), class: 'btn btn-outline-info'
+- else
   - if current_user.admin? || current_user.teacher?
     = link_to '編集', edit_teacher_lesson_path(@user, @lesson), class: 'btn btn-primary'
   - elsif !@lesson.finished?
     = link_to "予約する", reserve_teacher_lesson_path(@user, @lesson), method: :post, class: 'btn btn-primary', data: { confirm: "チケットを使用して予約しますか？" }
+
 = link_to '戻る', :back, class: 'btn btn-outline-secondary'

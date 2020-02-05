@@ -13,6 +13,8 @@ Rails.application.routes.draw do
     end
     resources :lessons do
       member do
+        get :edit_report
+        patch :update_report
         post :reserve
       end
       collection do

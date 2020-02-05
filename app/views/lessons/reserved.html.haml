@@ -4,4 +4,4 @@
 
 %h2 終了済み#{Lesson.model_name.human}一覧
 
-= render 'list', {lessons: @finished_lessons, columns: [:date_at, :teacher_name, :period_name, :category_name, :zoom_url, :show]}
+= render 'list', {lessons: @finished_lessons, columns: [:date_at, :teacher_name, :period_name, :category_name, :feedback, :show]}

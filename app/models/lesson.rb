@@ -8,6 +8,8 @@ class Lesson < ApplicationRecord
   validates_presence_of :period_id
   validates_presence_of :category_id
   validate :validate_time_overlaps
+
+  after_update :notify_feedback_changed
   
   scope :reservables, -> { where(ticket_id: nil) }
   scope :not_reservables, -> { where.not(ticket_id: nil) }
@@ -26,15 +28,15 @@ class Lesson < ApplicationRecord
 
   def reserve(student_user)
     if self.new_record?
-      self.errors.add(:user, '登録されていないレッスンです。')
+      self.errors.add(:user, 'エラー。登録されていないレッスンです。')
     elsif self.reserved?
-      self.errors.add(:ticket, '既に予約済みです。')
+      self.errors.add(:ticket, 'エラー。既に予約済みです。')
     elsif self.finished?
-      self.errors.add(:ticket, '既に終了済みです。')
+      self.errors.add(:ticket, 'エラー。既に終了済みです。')
     else
       self.ticket = student_user.usable_ticket
       if self.ticket.nil?
-        self.errors.add(:ticket, '使用可能なチケットがありません')
+        self.errors.add(:ticket, 'エラー。使用可能なチケットがありません。')
       else
         # Zoomミーティング作成
         zoom_client = Zoom.new
@@ -80,5 +82,10 @@ class Lesson < ApplicationRecord
       if self.reserved? && self.time_overlaps.joins(:ticket).where('tickets.user_id = ?', self.ticket.user_id).exists?
         errors.add(:date_at, "と時間枠の組み合わせは生徒が重複するレッスンがあります。")
       end
+    end
+
+    def notify_feedback_changed
+      # フィードバック変更時にメール送信
+      NotificationMailer.send_feedback_to_student(self).deliver_later if self.reserved? && self.saved_change_to_feedback?
     end
 end

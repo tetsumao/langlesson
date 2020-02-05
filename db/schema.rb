@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_24_170244) do
+ActiveRecord::Schema.define(version: 2020_02_03_160318) do
 
   create_table "categories", force: :cascade do |t|
     t.string "category_name"
@@ -28,6 +28,8 @@ ActiveRecord::Schema.define(version: 2020_01_24_170244) do
     t.string "zoom_url"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "feedback"
+    t.text "report"
     t.index ["category_id"], name: "index_lessons_on_category_id"
     t.index ["period_id"], name: "index_lessons_on_period_id"
     t.index ["ticket_id"], name: "index_lessons_on_ticket_id"
@@ -35,8 +37,8 @@ ActiveRecord::Schema.define(version: 2020_01_24_170244) do
   end
 
   create_table "periods", force: :cascade do |t|
-    t.integer "start_minute", null: false
-    t.integer "end_minute", null: false
+    t.string "start_time"
+    t.string "end_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

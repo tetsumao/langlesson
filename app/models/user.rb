@@ -8,6 +8,9 @@ class User < ApplicationRecord
 
   validates_uniqueness_of :email
   validates_presence_of :email
+  validates :profile, length: {maximum: 200}
+
+  after_create :create_free_ticket
 
   has_many :lessons, dependent: :destroy
   has_many :user_categories, inverse_of: :user, dependent: :destroy
@@ -17,8 +20,6 @@ class User < ApplicationRecord
 
   accepts_nested_attributes_for :user_categories, reject_if: :reject_category_blank, allow_destroy: true
   attr_accessor :temp_categoriy_ids
-
-  validates :profile, length: {maximum: 200}
 
   mount_uploader :picture, PictureUploader
 
@@ -35,6 +36,11 @@ class User < ApplicationRecord
   end
 
   private
+    def create_free_ticket
+      # 無料チケット
+      self.tickets.build(number_owned: :one).save if self.student?
+    end
+
     def reject_category_blank(attributes)
       # カラと重複するカテゴリを外す
       self.temp_categoriy_ids = [] if self.temp_categoriy_ids.nil?

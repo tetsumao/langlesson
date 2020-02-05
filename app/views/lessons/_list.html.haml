@@ -15,11 +15,17 @@
         %th{ scope: 'col' }= Lesson.human_attribute_name :student_name
       - if columns.include?(:zoom_url)
         %th{ scope: 'col' }= Lesson.human_attribute_name :zoom_url
+      - if columns.include?(:feedback)
+        %th{ scope: 'col' }= Lesson.human_attribute_name :feedback
+      - if columns.include?(:report)
+        %th{ scope: 'col' }= Lesson.human_attribute_name :report
       - if columns.include?(:show)
         %th
       - if columns.include?(:edit)
         %th
       - if columns.include?(:delete)
+        %th
+      - if columns.include?(:edit_report)
         %th
 
   %tbody
@@ -36,13 +42,21 @@
         - if columns.include?(:category_name)
           %td= lesson.category.category_name
         - if columns.include?(:student_name)
-          %td= lesson.ticket.user.user_name if lesson.ticket.present?
+          %td= link_to(lesson.ticket.user.user_name, user_path(lesson.ticket.user)) if lesson.ticket.present?
         - if columns.include?(:zoom_url)
           %td= lesson.zoom_url.present? ? link_to(lesson.zoom_url, lesson.zoom_url, target: ["_blank"]) : nil
+        - if columns.include?(:feedback)
+          %td
+            %pre= lesson.feedback
+        - if columns.include?(:report)
+          %td
+            %pre= lesson.report
         - if columns.include?(:show)
           %td= link_to '表示', teacher_lesson_path(lesson.user, lesson), class: 'btn btn-outline-dark btn-sm'
         - if columns.include?(:edit)
           %td= link_to '編集', edit_teacher_lesson_path(lesson.user, lesson), class: 'btn btn-outline-info btn-sm'
         - if columns.include?(:delete)
           %td= link_to '削除', teacher_lesson_path(lesson.user, lesson), class: 'btn btn-danger btn-sm', method: :delete, data: {confirm: '削除してよろしいですか？'}
+        - if columns.include?(:edit_report)
+          %td= link_to '報告', edit_report_teacher_lesson_path(lesson.user, lesson), class: 'btn btn-outline-info btn-sm'
 = paginate lessons

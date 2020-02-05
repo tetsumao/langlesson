@@ -12,4 +12,11 @@ class NotificationMailer < ApplicationMailer
       format.text
     end
   end
+
+  def send_feedback_to_student(lesson)
+    @lesson = lesson
+    mail subject: "レッスンのフィードバックが登録されました(#{@lesson.summary})", to: @lesson.ticket.user.email do |format|
+      format.text
+    end
+  end
 end
