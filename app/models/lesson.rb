@@ -10,6 +10,10 @@ class Lesson < ApplicationRecord
   validate :validate_time_overlaps
 
   after_update :notify_feedback_changed
+
+  # PostgresとSQLiteの書式の違い
+  SQL_DATE_AT_TO_MONTH = Rails.env.production? ? "to_char(date_at, 'YYYY-MM-01')" : "strftime('%Y-%m-01', date_at)"
+  SQL_DATE_AT_TO_WDAY = Rails.env.production? ? "(TO_NUMBER(to_char(date_at, 'D')) - 1)" : "(CAST(strftime('%w', date_at) AS INTEGER))"
   
   scope :reservables, -> { where(ticket_id: nil) }
   scope :not_reservables, -> { where.not(ticket_id: nil) }
@@ -25,6 +29,16 @@ class Lesson < ApplicationRecord
   scope :time_from, -> (from) { joins(:period).where('start_time >= ?', from) if from.present? }
   scope :time_to, -> (to) { joins(:period).where('end_time <= ?', to) if to.present? }
   scope :category_id_is, -> (id) { where(category_id: id) if id.present? }
+
+  scope :date_start_and_next, -> (date1, date2) { where(['date_at >= ? AND date_at < ?', date1, date2]) }
+  scope :reservation_rate_by_date, -> (select_columns, group_columns) { select("#{select_columns}, COUNT(tickets.id) AS number_reserved, COUNT(lessons.id) AS number_lesson").left_joins(:ticket).group(group_columns) }
+  scope :reservation_rate_by_date_and_period, -> { reservation_rate_by_date('date_at, period_id', 'date_at, period_id') }
+  scope :reservation_rate_by_teacher_and_month, -> { reservation_rate_by_date("lessons.user_id, #{SQL_DATE_AT_TO_MONTH} AS date_at", "lessons.user_id, #{SQL_DATE_AT_TO_MONTH}") }
+  scope :reservation_rate_by_teacher_and_date, -> { reservation_rate_by_date('lessons.user_id, date_at', 'lessons.user_id, date_at') }
+  scope :reservation_rate_by_teacher_and_wday, -> { reservation_rate_by_date("lessons.user_id, #{SQL_DATE_AT_TO_WDAY} AS wday", 'lessons.user_id, wday') }
+  scope :reservation_rate_by_category_and_month, -> { reservation_rate_by_date("category_id, #{SQL_DATE_AT_TO_MONTH} AS date_at", "category_id, #{SQL_DATE_AT_TO_MONTH}") }
+  scope :reservation_rate_by_category_and_date, -> { reservation_rate_by_date('category_id, date_at', 'category_id, date_at') }
+  scope :reservation_rate_by_category_and_wday, -> { reservation_rate_by_date("category_id, #{SQL_DATE_AT_TO_WDAY} AS wday", 'category_id, wday') }
 
   def reserve(student_user)
     if self.new_record?

@@ -35,6 +35,73 @@ class User < ApplicationRecord
     usable_tickets_with_number_used.sum('number_owned - number_used')
   end
 
+  # レッスンの一括登録
+  def save_lessons(lessons_params = [])
+    success = true
+    # パラメータ毎のレコード
+    lessons_by_params = []
+    lessons_params.each do |lps|
+      lessons = []
+      lesson_params = lps.dup
+      # 日付範囲の日付配列を生成する
+      date_ats = []
+      date_from = lesson_params.delete(:date_from)
+      date_to = lesson_params.delete(:date_to)
+      if date_from.present?
+        if date_to.present?
+          date_from = date_from.to_date
+          date_to = date_to.to_date
+          date = date_from
+          while date <= date_to
+            date_ats << date
+            date += 1
+          end
+        else
+          date_ats << date_from
+        end
+      elsif date_to.present?
+        date_ats << date_to
+      else
+        date_ats << lesson_params[:date_at] if lesson_params[:date_at].present?
+      end
+      # 時間枠の配列
+      period_ids = lesson_params.delete(:period_ids) || []
+      period_ids = [lesson_params[:period_id]] if period_ids.empty? && lesson_params[:period_id].present?
+      # レッスンを生成
+      date_ats.each do |date_at|
+        period_ids.each do |period_id|
+          lesson_params[:date_at] = date_at
+          lesson_params[:period_id] = period_id
+          lessons << self.lessons.build(lesson_params)
+        end
+      end
+      lessons_by_params << lessons
+      if lessons.empty?
+        lps[:errors] = ['実施日または時間枠の指定が不正です。']
+        success = false
+      end
+    end
+
+    # 複数件数保存し、1件でもバリデーションエラーがあったらロールバック
+    ActiveRecord::Base.transaction do
+      lessons_by_params.each_with_index do |lessons, index|
+        lesson_params = lessons_params[index]
+        lessons.each do |lesson|
+          unless lesson.save
+            lesson_params[:errors] = [] unless lesson_params.has_key?(:errors)
+            lesson_params[:errors] += lesson.errors.full_messages
+            success = false
+          end
+        end
+      end
+      raise ActiveRecord::RecordInvalid unless success
+      success
+    end
+    rescue
+      success = false
+    success
+  end
+
   private
     def create_free_ticket
       # 無料チケット
@@ -50,7 +117,7 @@ class User < ApplicationRecord
         if temp_categoriy_ids.include?(categoriy_id)
           categoriy_id = nil
         else
-          temp_categoriy_ids.push(categoriy_id)
+          temp_categoriy_ids << categoriy_id
         end
       end
       if attributes[:id].present?

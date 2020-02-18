@@ -1,0 +1,43 @@
+%h2 予約状況（予約数 / レッスン枠数）
+
+.serach-form
+  = form_with(scope: :range, url: visualizations_by_date_path, method: :get, local: true, class: 'simple_form') do |f|
+    .field
+      = f.label :date_at, Lesson.human_attribute_name(:date_at)
+    .form-inputs.row.form-group
+      .col-lg-5
+        = f.date_field :date_from, value: @range_params[:date_from], class: 'form-control mx-1'
+      .col-lg-2.d-flex.align-items-center.text-center
+        %span.mx-auto ～
+      .col-lg-5
+        = f.date_field :date_to, value: @range_params[:date_to], class: 'form-control mx-1'
+    .field
+      = f.label :time_at, Lesson.human_attribute_name(:time)
+    .form-inputs.row.form-group
+      .col-lg-5
+        = f.time_field :time_from, value: @range_params[:time_from], class: 'form-control mx-1'
+      .col-lg-2.d-flex.align-items-center.text-center
+        %span.mx-auto ～
+      .col-lg-5
+        = f.time_field :time_to, value: @range_params[:time_to], class: 'form-control mx-1'
+    .form-actions.text-center.form-group
+      = f.submit '検索する', class: 'btn btn-primary'
+
+- if @periods.length > 0
+  %table.table.table-bordered.table-sm
+    %thead.thead-light
+      %tr
+        %th.align-middle.text-center{style: "width:11%"} 日付
+        - col_rate = (100-11) / @periods.length
+        - @periods.each do |period|
+          %th.align-middle.text-center{style: "width:#{col_rate}%"}= period.period_name
+    %tbody
+      - @lessons.pluck(:date_at).uniq.each do |date|
+        %tr
+          %td.align-middle.text-center= date_to_s_with_wday(date)
+          - date_lessons = @lessons.select{|l| l.date_at == date}
+          - @periods.each do |period|
+            = visualization_td_rate_tag(date_lessons.select {|l| l.period_id == period.id}.first)
+  = paginate @lessons
+- else
+  時刻の範囲が不正です。

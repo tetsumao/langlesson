@@ -1,0 +1,52 @@
+%h2 講師毎の予約率詳細（予約数 / レッスン枠数）
+
+.row.align-items-center
+  .col-lg-4.text-right
+    = link_to "<<", visualizations_by_teacher_detail_path(date_to_week_params(@date.prev_month)), class: 'btn btn-outline-secondary'
+    = link_to "<", visualizations_by_teacher_detail_path(date_to_week_params(@date - 7)), class: 'btn btn-outline-secondary'
+  .col-lg-4.text-center
+    = form_with(scope: :week, url: visualizations_by_teacher_detail_path, method: :get, local: true, class: 'simple_form') do |f|
+      = f.select :year, 2000..2099, {selected: @date.year}, onchange: 'submit(this.form)'
+      年
+      = f.select :month, 1..12, {selected: @date.month}, onchange: 'submit(this.form)'
+      月
+      = f.select :day, 1..@date.at_end_of_month.day, {selected: @date.day}, onchange: 'submit(this.form)'
+      日
+  .col-lg-4.text-left
+    = link_to ">", visualizations_by_teacher_detail_path(date_to_week_params(@date + 7)), class: 'btn btn-outline-secondary'
+    = link_to ">>", visualizations_by_teacher_detail_path(date_to_week_params(@date.next_month)), class: 'btn btn-outline-secondary'
+
+%table.table.table-bordered.table-sm
+  %thead.thead-light
+    %tr
+      %th.align-middle.text-center{style: "width:11%"} 講師名
+      - date = @date
+      - (0..6).each do |i|
+        %th.align-middle.text-center{style: 'width:12%'}= date_to_s_with_wday(date)
+        - date = date.next_day
+  %tbody
+    - @teachers.each do |teacher|
+      %tr
+        %td.align-middle.text-center= teacher.user_name
+        - teacher_lessons = @lessons.select{|l| l.user_id == teacher.id}
+        - date = @date
+        - (0..6).each do |i|
+          = visualization_td_rate_tag(teacher_lessons.select{|l| l.date_at == date}.first)
+          - date = date.next_day
+= paginate @teachers
+
+%h2= "曜日毎の予約率（#{@date.month}月）"
+
+%table.table.table-bordered.table-sm
+  %thead.thead-light
+    %tr
+      %th.align-middle.text-center{style: "width:11%"} 講師名
+      - (0..6).each do |wday|
+        %th.align-middle.text-center{style: 'width:12%'}= wday_to_s(wday)
+  %tbody
+    - @teachers.each do |teacher|
+      %tr
+        %td.align-middle.text-center= teacher.user_name
+        - teacher_lessons = @lessons_wday.select{|l| l.user_id == teacher.id}
+        - (0..6).each do |wday|
+          = visualization_td_rate_tag(teacher_lessons.select{|l| l.wday == wday}.first)

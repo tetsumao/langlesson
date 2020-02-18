@@ -26,6 +26,15 @@ Rails.application.routes.draw do
     get :search
     get :reserved
   end
+  namespace :visualizations do
+    get :by_date
+    get :by_teacher
+    get :by_teacher_detail
+    get :by_category
+    get 'by_category_detail/:year/:month/:day' => :by_category_detail, as: :by_category_detail, constraints: ->(request) {
+      Date.valid_date?(request.params[:year].to_i, request.params[:month].to_i, request.params[:day].to_i)
+    }
+  end
   resources :categories, except: [:show]
   resources :periods, except: [:show]
   root 'home#index'

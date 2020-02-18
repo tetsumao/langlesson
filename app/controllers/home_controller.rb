@@ -3,7 +3,7 @@ class HomeController < ApplicationController
 
   def index
     if current_user.admin?
-      redirect_to teachers_path
+      redirect_to visualizations_by_date_path
     elsif current_user.teacher?
       redirect_to teacher_lessons_path(current_user)
     else

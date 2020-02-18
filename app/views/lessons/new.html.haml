@@ -1,5 +1,22 @@
 %h2 新しい#{Lesson.model_name.human}
 
-= render 'form'
+= form_with(url: teacher_lessons_path(@user), method: :post, local: true, class: 'simple_form') do |f|
+  - @lessons_params.each_with_index do |lesson_params, index|
+    = render 'new_form', {lesson_params: lesson_params, removable: index > 0}
+  .row#add_lesson_params
+    .col-lg-12.text-right.text-white
+      %a.btn.btn-info{onclick: 'addLessonParams();'} 追加
+
+  .form-actions.text-center.form-group
+    = f.submit '登録する', class: 'btn btn-primary'
+
+:javascript
+  switchLessonParamsTab = function($c, index){
+    $panes = $c.closest(".container").find(".tab-pane");
+    $panes.eq((index == 0) ? 1 : 0).hide().find('input, select').attr('disabled', true);
+    $panes.eq((index == 0) ? 0 : 1).show().find('input, select').attr('disabled', false);
+  }
+  addLessonParams = function(){ $('#add_lesson_params').before("#{j render 'new_form', {lesson_params: {}, removable: true}}"); }
+  removeLessonParams = function($c){ $c.closest(".container").remove(); }
 
 = link_to "戻る", :back, class: 'btn btn-outline-secondary'

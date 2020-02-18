@@ -23,18 +23,17 @@ class LessonsController < ApplicationController
   end
 
   def new
-    @lesson = @user.lessons.build
+    @lessons_params = [{}]
   end
 
   def edit
   end
 
   def create
-    @lesson = @user.lessons.build(lesson_params)
-
+    @lessons_params = lessons_params[:lessons]
     respond_to do |format|
-      if @lesson.save
-        format.html { redirect_to teacher_lesson_path(@user, @lesson), notice: "#{Lesson.model_name.human}を作成しました。" }
+      if @user.save_lessons(@lessons_params)
+        format.html { redirect_to teacher_lessons_path(@user), notice: "#{Lesson.model_name.human}を作成しました。" }
       else
         format.html { render :new }
       end
@@ -119,6 +118,9 @@ class LessonsController < ApplicationController
 
     def lesson_params
       params.require(:lesson).permit(:date_at, :period_id, :category_id)
+    end
+    def lessons_params
+      params.permit(lessons: [:date_from, :date_to, :date_at, :period_id, :category_id, period_ids: []])
     end
 
     def lesson_report_params

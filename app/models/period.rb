@@ -1,6 +1,10 @@
 class Period < ApplicationRecord
   validate :validate_times
 
+  scope :time_from, -> (from) { where('start_time >= ?', from) if from.present? }
+  scope :time_to, -> (to) { where('end_time <= ?', to) if to.present? }
+  scope :order_asc, -> { order('start_time ASC, end_time ASC') }
+
   def period_name
     self.start_time + '～の回'
   end
