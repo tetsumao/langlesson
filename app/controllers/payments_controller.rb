@@ -71,11 +71,7 @@ class PaymentsController < ApplicationController
   end
 
   def history
-    if @customer.present?
-      @invoices = Kaminari.paginate_array(Stripe::Invoice.list(customer: @customer.id).data).page(params[:page]).per(10)
-    else
-      @invoices = []
-    end
+    @invoices = Kaminari.paginate_array(@customer.present? ? Stripe::Invoice.list(customer: @customer.id).data : []).page(params[:page]).per(10)
   end
 
   private
