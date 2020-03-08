@@ -9,7 +9,7 @@ class VisualizationsController < ApplicationController
       .date_to(@range_params[:date_to])
       .time_from(@range_params[:time_from])
       .time_to(@range_params[:time_to])
-      .reservation_rate_by_date_and_period.order_asc.page(params[:page]).per(50)
+      .reservation_rate_by_date_and_period.order(date_at: :asc).page(params[:page]).per(50)
     @periods = Period
       .time_from(@range_params[:time_from])
       .time_to(@range_params[:time_to])
@@ -19,7 +19,7 @@ class VisualizationsController < ApplicationController
   def by_teacher
     year_month_params = visualization_year_month_params
     @year_month = Date.new(year_month_params[:year].to_i, year_month_params[:month].to_i)
-    @lessons = Lesson.date_start_and_next(@year_month, @year_month.next_year).reservation_rate_by_teacher_and_month.order(date_at: :asc)
+    @lessons = Lesson.date_start_and_next(@year_month, @year_month.next_year).reservation_rate_by_teacher_and_month.order(month_at: :asc)
     @teachers = User.teachers.order(id: :desc).page(params[:page]).per(20)
   end
 
@@ -30,13 +30,13 @@ class VisualizationsController < ApplicationController
     @lessons = Lesson.date_start_and_next(@date, @date + 7).reservation_rate_by_teacher_and_date.order(date_at: :asc)
     @teachers = User.teachers.order(id: :desc).page(params[:page]).per(20)
     date_beggining = @date.beginning_of_month
-    @lessons_wday = Lesson.date_start_and_next(date_beggining, date_beggining.next_month).reservation_rate_by_teacher_and_wday.order(date_at: :asc)
+    @lessons_wday = Lesson.date_start_and_next(date_beggining, date_beggining.next_month).reservation_rate_by_teacher_and_wday.order(wday: :asc)
   end
 
   def by_category
     year_month_params = visualization_year_month_params
     @year_month = Date.new(year_month_params[:year].to_i, year_month_params[:month].to_i)
-    @lessons = Lesson.date_start_and_next(@year_month, @year_month.next_year).reservation_rate_by_category_and_month.order(date_at: :asc)
+    @lessons = Lesson.date_start_and_next(@year_month, @year_month.next_year).reservation_rate_by_category_and_month.order(month_at: :asc)
     @categories = Category.all.order(id: :desc).page(params[:page]).per(20)
   end
 
@@ -47,7 +47,7 @@ class VisualizationsController < ApplicationController
     @lessons = Lesson.date_start_and_next(@date, @date + 7).reservation_rate_by_category_and_date.order(date_at: :asc)
     @categories = Category.all.order(id: :desc).page(params[:page]).per(20)
     date_beggining = @date.beginning_of_month
-    @lessons_wday = Lesson.date_start_and_next(date_beggining, date_beggining.next_month).reservation_rate_by_category_and_wday.order(date_at: :asc)
+    @lessons_wday = Lesson.date_start_and_next(date_beggining, date_beggining.next_month).reservation_rate_by_category_and_wday.order(wday: :asc)
   end
 
   private

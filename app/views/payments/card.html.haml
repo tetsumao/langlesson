@@ -1,0 +1,64 @@
+%h2 クレジットカード情報
+- if @card.present?
+  .card.mb-3
+    .card-header= 'カード情報'
+    .card-body
+      = "#{@card.brand} **** **** **** #{@card.last4}　有効期限：#{@card.exp_month}/#{@card.exp_year}"
+      = link_to '削除', payments_delete_card_path, class: 'btn btn-danger btn-sm', method: :delete, data: { confirm: 'カード情報を削除してよろしいですか？' }
+  カード情報を更新する場合は以下で登録してください。
+
+.form-inputs
+  #card-number.stripe-input
+  #card-expiry.stripe-input
+  #card-cvc.stripe-input
+  #stripe_err{ role: 'alert' }
+= simple_form_for(@user, url: payments_register_card_path, html: { method: :post, id: "card-form" }) do |f|
+  = f.error_notification
+  .form-actions.text-center
+    = f.button :submit, "登録", class: 'btn btn-primary'
+%script{src: 'https://js.stripe.com/v3/'}
+:javascript
+  var stripe = Stripe("#{Rails.configuration.stripe[:publishable_key]}");
+  var elements = stripe.elements();
+  var style = {
+    base: {
+      color: '#32325d',
+      fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+      fontSize: '16px'
+    },
+    invalid: {
+      color: '#fa755a',
+      iconColor: '#fa755a'
+    }
+  };
+  var confirmStripeError = function(event){
+    if (event.error) {
+      $('#stripe_err').text(event.error.message);
+      return false;
+    } else {
+      $('#stripe_err').text('');
+      return true;
+    }
+  }
+  const cardNumber = elements.create('cardNumber', {style: style, placeholder: 'カード番号 1111 1111 1111 1111'});
+  cardNumber.mount('#card-number');
+  cardNumber.addEventListener('change', confirmStripeError);
+  const cardExpiry = elements.create('cardExpiry', {style: style, placeholder: '有効期限　MM/YY'});
+  cardExpiry.mount('#card-expiry');
+  cardExpiry.addEventListener('change', confirmStripeError);
+  const cardCvc = elements.create('cardCvc', {style: style, placeholder: 'セキュリティ番号'});
+  cardCvc.mount('#card-cvc');
+  cardCvc.addEventListener('change', confirmStripeError);
+
+  var $form = $('#card-form');
+  $form.submit(function(event) {
+    stripe.createToken(cardNumber).then(function(result) {
+      if (confirmStripeError(result)) {
+        $form.off('submit').append($('<input>').attr({ type: 'hidden', name: 'stripeToken', value: result.token.id })).submit();
+      }
+    });
+    return false;
+  });
+
+= link_to "戻る", :back, class: 'btn btn-outline-secondary'
+= link_to "新しい#{Ticket.model_name.human}の購入", new_ticket_path, class: 'btn btn-primary' if @card.present?

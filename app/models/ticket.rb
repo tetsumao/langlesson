@@ -1,5 +1,5 @@
 class Ticket < ApplicationRecord
-  enum number_owned: {one: 1, three: 3, five: 5}
+  enum number_owned: {one: 1, three: 3, five: 5, seven: 7, ten: 10}
 
   attr_accessor :stripe_token
 
@@ -9,11 +9,12 @@ class Ticket < ApplicationRecord
   validates :number_owned, inclusion: {in: Ticket.number_owneds.keys}
 
   def self.number_owned_to_amount(no)
-    if no == 'one'
+    sym = no.to_sym
+    if sym == :one
       2000
-    elsif no == 'three'
+    elsif sym == :three
       5000
-    elsif no == 'five'
+    elsif sym == :five
       7500
     else
       0
@@ -23,9 +24,14 @@ class Ticket < ApplicationRecord
   def payment
     amount = Ticket.number_owned_to_amount(self.number_owned)
     begin
-      charge = Stripe::Charge.create(source: self.stripe_token, amount: amount,
-        description: "ユーザ: #{self.user_id} #{self.ticket_name}支払い", currency: 'jpy')
-      return self.save
+      if amount > 0
+        charge = Stripe::Charge.create(customer: self.user.stripe_cusid, amount: amount,
+          description: "ユーザ: #{self.user_id} #{self.ticket_name}支払い", currency: 'jpy')
+        self.stripe_invid = charge.id
+        return self.save
+      else
+        errors.add(:base, '選択されているチケットは不正です。')
+      end
     rescue Stripe::CardError => e
       errors.add(:base, "決済でエラーが発生しました。#{e.message}")
     rescue Stripe::InvalidRequestError => e

@@ -32,7 +32,7 @@ class User < ApplicationRecord
   end
 
   def usable_ticket_count
-    usable_tickets_with_number_used.sum('number_owned - number_used')
+    usable_tickets_with_number_used.sum('number_owned - number_used').to_i
   end
 
   # レッスンの一括登録
@@ -131,6 +131,6 @@ class User < ApplicationRecord
     def usable_tickets_with_number_used
       # サブクエリで使用カウント(number_used)を集計
       subquery = self.tickets.left_joins(:lessons).group(:id).select('tickets.*, COUNT(lessons.id) AS number_used')
-      Ticket.from("(#{subquery.to_sql}) AS sub").where('number_used < number_owned')
+      Ticket.from("(#{subquery.to_sql}) AS sub").where(['number_used < number_owned AND (due_at IS NULL OR due_at >= ?)', Date.today])
     end
 end

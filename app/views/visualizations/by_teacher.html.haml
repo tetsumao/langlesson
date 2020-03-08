@@ -20,7 +20,7 @@
       %th.align-middle.text-center{style: "width:11%"} 講師名
       - month = @year_month
       - (0..11).each do |i|
-        %th.align-middle.text-center{style: 'width:7%'}= link_to month.strftime("%Y/%m"), visualizations_by_teacher_detail_path(year: month.year, month: month.month, day: 1)
+        %th.align-middle.text-center{style: 'width:7%'}= link_to month.strftime("%Y/%m"), visualizations_by_teacher_detail_path(date_to_week_params(month))
         - month = month.next_month
   %tbody
     - @teachers.each do |teacher|
@@ -29,6 +29,6 @@
         - teacher_lessons = @lessons.select{|l| l.user_id == teacher.id}
         - month = @year_month
         - (0..11).each do |i|
-          = visualization_td_rate_tag(teacher_lessons.select{|l| l.date_at == month}.first)
+          = visualization_td_rate_tag(teacher_lessons.select{|l| l.month_at == month.strftime("%Y-%m")}.first)
           - month = month.next_month
 = paginate @teachers

@@ -10,13 +10,16 @@
       %th{ scope: 'col' }= Ticket.human_attribute_name :created_at
       %th{ scope: 'col' }= Ticket.human_attribute_name :number_owned
       %th{ scope: 'col' }= Ticket.human_attribute_name :number_used
+      %th{ scope: 'col' }= Ticket.human_attribute_name :due_at
 
   %tbody
+    - today = Date.today
     - @tickets.each do |ticket|
       %tr
         %td= ticket.created_at.strftime('%Y年%m月%d日')
-        %td= ticket.ticket_name
-        %td= ticket.number_used
+        %td= Ticket.number_owneds[ticket.number_owned]
+        %td= (ticket.due_at.present? && ticket.due_at < today) ? "#{ticket.number_used}（期限切れ）" : ticket.number_used
+        %td= ticket.due_at.present? ? ticket.due_at.strftime('%Y年%m月%d日') : (ticket.stripe_invid.present? ? '単品' : 'フリー')
 = paginate @tickets
 
-= link_to "新しい#{Ticket.model_name.human}の購入", new_user_ticket_path(@user), class: 'btn btn-primary'
+= link_to "新しい#{Ticket.model_name.human}の購入", new_ticket_path, class: 'btn btn-primary'

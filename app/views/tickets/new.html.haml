@@ -1,5 +1,17 @@
 %h2 新しい#{Ticket.model_name.human}の購入
 
-= render 'form'
+- if @card.present?
+  .card.mb-3
+    .card-header= 'カード情報'
+    .card-body
+      = "#{@card.brand} **** **** **** #{@card.last4}　有効期限：#{@card.exp_month}/#{@card.exp_year}"
+  .card.mb-3
+    .card-header= '現在の定期決済'
+    .card-body
+      = @plan.present? ? t("stripe_plan.#{@plan}") : 'なし'
+  = render 'form'
+- else
+  %p 決済にはカード情報の登録が必要です。
 
 = link_to "戻る", :back, class: 'btn btn-outline-secondary'
+= link_to "クレジット情報", payments_card_path, class: 'btn btn-primary', data: {turbolinks: false}

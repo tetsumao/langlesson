@@ -1,3 +1,16 @@
 // Place all the styles related to the tickets controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: https://sass-lang.com/
+.stripe-input {
+  width: 280px;
+  padding:8px;
+  margin-bottom:5px;
+  border: 1px solid #BBBBBB;
+  border-radius:5px;
+}
+#stripe_err {
+  height: 20px;
+  padding: 4px 0;
+  color: 
+  #fa755a;
+}

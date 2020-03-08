@@ -1,26 +1,29 @@
 -# frozen_string_literal: true
-= simple_form_for([@user, @ticket], url: user_tickets_path(@user)) do |f|
-  = f.error_notification
-  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
-
-  .form-inputs
-    = f.input :number_owned, as: :select, collection: ticket_select_items, include_blank: false
-
-  .form-actions.text-center
-    = f.button :submit, value: 'カード決済', class: 'btn btn-primary'
-
-%script{src: 'https://checkout.stripe.com/checkout.js'}
-%script
-  var $form = $('#new_ticket');
-  var h_amount = {
-  - Ticket.number_owneds.keys.each do |key|
-    #{key}: #{Ticket.number_owned_to_amount(key)},
-  };
-  $form.submit(function(e){
-  -# ready等の起動タイミングでconfigureを読みだすと"stripecheckout is not defined"エラーが出ることがある
-  var sc = StripeCheckout.configure({
-  key: "#{Rails.configuration.stripe[:publishable_key]}",
-  email: "#{@user.email}", description: "カード決済", locale: "ja", currency: "jpy",
-  token: function(token){ $form.off('submit').append($('<input>').attr({ type: 'hidden', name: 'stripeToken', value: token.id })).submit(); }
-  });
-  sc.open({amount: h_amount[$('#ticket_number_owned').val()]}); return false;});
+.container
+  %ul.nav.nav-tabs{role: 'tablist'}
+    %li.nav-item
+      %a.nav-link{class: @plan.present? ? '' : :active, 'data-toggle': 'tab', href: '#', onclick: 'switchTicketTab($(this), 0);'} 単品決済
+    %li.nav-item
+      %a.nav-link{class: @plan.present? ? :active : '', 'data-toggle': 'tab', href: '#', onclick: 'switchTicketTab($(this), 1);'} 定期決済
+  .tab-content
+    .tab-pane{class: @plan.present? ? '' : :active}
+      = simple_form_for(@ticket) do |f|
+        = f.error_notification
+        = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+        .form-inputs
+          = f.input :number_owned, as: :select, collection: ticket_select_items, include_blank: false
+        .form-actions.text-center
+          = f.submit  '単品決済', class: 'btn btn-primary', data: { confirm: 'カード決済されますがよろしいですか？'}
+    .tab-pane{class: @plan.present? ? :active : ''}
+      = form_with(url: payments_subscription_path) do |f|
+        .form-inputs
+          = f.label :stripe_plan, 'プラン'
+          = f.select :stripe_plan, options_for_select(stripe_plan_select_items, @plan), {}, {class: 'form-group form-control mx-1'}
+        .form-actions.text-center
+          = f.submit '定期決済', class: 'btn btn-primary', data: @plan.nil? ? { confirm: '新規登録のためすぐにカード決済されますがよろしいですか？'} : {}
+:javascript
+  switchTicketTab = function($c, index){
+    $panes = $c.closest(".container").find(".tab-pane");
+    $panes.eq((index == 0) ? 1 : 0).hide().find('input, select').attr('disabled', true);
+    $panes.eq((index == 0) ? 0 : 1).show().find('input, select').attr('disabled', false);
+  }

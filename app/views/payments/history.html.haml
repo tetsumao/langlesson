@@ -1,0 +1,16 @@
+%h2 定期決済履歴
+
+%table.table
+  %thead.thead-dark
+    %tr
+      %th{ scope: 'col' } 支払日時
+      %th{ scope: 'col' } 支払金額
+      %th{ scope: 'col' } プラン
+
+  %tbody
+    - @invoices.each do |invoice|
+      %tr
+        %td= Time.at(invoice.created).strftime('%Y年%m月%d日 %H時%M分')
+        %td= invoice.amount_paid
+        %td= t("stripe_plan.#{STRIPE_PLAN_ID.key(invoice.lines.data[0].plan.id)}") if invoice.lines.total_count > 0
+= paginate @invoices

@@ -1,6 +1,7 @@
 class LessonsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_user, except: [:search, :reserved]
+  before_action :confirm_teacher, except: [:show, :search, :reserve, :reserved]
   before_action :set_lesson, only: [:show, :edit, :update, :destroy, :edit_report, :update_report, :reserve]
   before_action :confirm_reservable, only: [:edit, :update, :destroy]
   before_action :confirm_finished, only: [:edit_report, :update_report]
@@ -8,7 +9,7 @@ class LessonsController < ApplicationController
 
   def index
     @lessons = @user.lessons.not_fineshed.not_reservables.order_asc.page(params[:page]).per(20)
-    @reservable_lessons = @user.lessons.reservables.order_asc.page(params[:page]).per(20)
+    @reservable_lessons = @user.lessons.not_fineshed.reservables.order_asc.page(params[:page]).per(20)
   end
 
   def history
@@ -101,6 +102,11 @@ class LessonsController < ApplicationController
   private
     def set_user
       @user = User.teachers.find(params[:teacher_id])
+    end
+    def confirm_teacher
+      if current_user.teacher? && current_user != @user
+        redirect_to teacher_lessons_path(current_user), notice: "他の講師の#{Lesson.model_name.human}です。"
+      end
     end
     def set_lesson
       @lesson = @user.lessons.find(params[:id])

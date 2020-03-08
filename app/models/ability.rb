@@ -16,6 +16,7 @@ class Ability
       can :show, :teacher
       can [:show, :search, :reserve, :reserved], Lesson
       can :manage, Ticket
+      can :manage, :payment
     end
   end
 end

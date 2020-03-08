@@ -32,6 +32,7 @@ ja:
         number_owned: 回数
         number_used: 使用数
         created_at: 購入日
+        due_at: 期限
       ticket/number_owned:
         one: 1回分：2000円+税
         three: 3回分：5000円+税
@@ -57,6 +58,11 @@ ja:
         restrict_dependent_destroy:
           has_one: "%{record}が存在しているので削除できません"
           has_many: "%{record}が存在しているので削除できません"
+  stripe_plan:
+    none: 休止
+    lite: ライトプラン：毎月5回、月額7000円
+    standard: スタンダードプラン：毎月7回、月額9500円
+    heavy: ヘビープラン：毎月10回、月額12000円
   date:
     abbr_day_names:
     - 日

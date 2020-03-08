@@ -1,10 +1,11 @@
 !!!
 %html
   %head
-    %meta{:content => "text/html; charset=UTF-8", "http-equiv" => "Content-Type"}/
+    %meta{content: "text/html; charset=UTF-8", "http-equiv": "Content-Type"}/
     %title Langlesson
     = csrf_meta_tags
     = csp_meta_tag
+    = stylesheet_pack_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
     = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload'
     = javascript_pack_tag 'application', 'data-turbolinks-track': 'reload'
     = javascript_include_tag 'application', 'data-turbolinks-track': 'reload'
@@ -58,8 +59,11 @@
                     %a.nav-link{href: lessons_search_path}
                       レッスン検索
                   %li.nav-item
-                    %a.nav-link{href: user_tickets_path(current_user)}
+                    %a.nav-link{href: tickets_path}
                       チケット
+                  %li.nav-item
+                    %a.nav-link{href: payments_history_path}
+                      定期決済履歴
               %ul.navbar-nav
                 %li.nav-item
                   %a.nav-link{href: current_user_path}

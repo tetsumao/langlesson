@@ -4,9 +4,8 @@ Rails.application.routes.draw do
     sessions: 'users/sessions',
     passwords: 'users/passwords'
   }
-  resources :users, only: [:show] do
-    resources :tickets, only: [:index, :new, :create]
-  end
+  resources :users, only: [:show]
+  resources :tickets, only: [:index, :new, :create]
   resources :teachers do
     member do
       post :proxy_sign_in
@@ -31,9 +30,14 @@ Rails.application.routes.draw do
     get :by_teacher
     get :by_teacher_detail
     get :by_category
-    get 'by_category_detail/:year/:month/:day' => :by_category_detail, as: :by_category_detail, constraints: ->(request) {
-      Date.valid_date?(request.params[:year].to_i, request.params[:month].to_i, request.params[:day].to_i)
-    }
+    get :by_category_detail
+  end
+  namespace :payments do
+    get :card
+    post :register_card
+    delete :delete_card
+    post :subscription
+    get :history
   end
   resources :categories, except: [:show]
   resources :periods, except: [:show]
