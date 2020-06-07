@@ -7,22 +7,24 @@
     .alert.alert-danger
       - lesson_params[:errors].each do |error_message|
         %p= error_message
+  = hidden_field_tag 'lessons[][tab_index]', lesson_params[:tab_index]
+  - tab_index = lesson_params[:tab_index].to_i
   %ul.nav.nav-tabs{role: 'tablist'}
     %li.nav-item
-      %a.nav-link.active{'data-toggle': 'tab', href: '#', onclick: 'switchLessonParamsTab($(this), 0);'} 通常指定
+      %a.nav-link{class: (tab_index == 0) ? 'active' : '', 'data-toggle': 'tab', href: '#', onclick: 'switchLessonParamsTab($(this), 0);'} 通常指定
     %li.nav-item
-      %a.nav-link{'data-toggle': 'tab', href: '#', onclick: 'switchLessonParamsTab($(this), 1);'} 範囲指定
+      %a.nav-link{class: (tab_index == 1) ? 'active' : '', 'data-toggle': 'tab', href: '#', onclick: 'switchLessonParamsTab($(this), 1);'} 範囲指定
   .tab-content
-    .tab-pane.active
+    .tab-pane{class: (tab_index == 0) ? 'active' : ''}
       .field
         = label_tag :date_at, Lesson.human_attribute_name(:date_at)
       .form-inputs.row.form-group
-        = date_field_tag 'lessons[][date_at]', lesson_params[:date_from], id: nil, class: 'form-control mx-1'
+        = date_field_tag 'lessons[][date_at]', lesson_params[:date_at], id: nil, class: 'form-control mx-1'
       .field
         = label_tag :period_id, Lesson.human_attribute_name(:period_id)
       .form-inputs.row.form-group
         = select_tag 'lessons[][period_id]', options_for_select(period_select_collection(Period.all), lesson_params[:period_id]), {include_blank: false, class: 'form-control mx-1', id: nil}
-    .tab-pane
+    .tab-pane{class: (tab_index == 1) ? 'active' : ''}
       .field
         = label_tag :date_at, "#{Lesson.human_attribute_name(:date_at)}範囲"
       .form-inputs.row.form-group
@@ -35,6 +37,7 @@
       .field
         = label_tag :period_id, "#{Lesson.human_attribute_name(:period_id)}選択"
       .form-inputs.row.form-group
+        = check_box_tag 'lessons[][period_ids][]', 0, true, id: nil, style: 'display: none;'
         = collection_check_boxes '', 'lessons[][period_ids]', Period.all, :id, :period_name, checked: lesson_params[:period_ids], include_hidden: false do |b|
           .col-lg-2
             = b.label { b.check_box(id: nil) + b.text }

@@ -12,9 +12,12 @@
 
 :javascript
   switchLessonParamsTab = function($c, index){
-    $panes = $c.closest(".container").find(".tab-pane");
-    $panes.eq((index == 0) ? 1 : 0).hide().find('input, select').attr('disabled', true);
-    $panes.eq((index == 0) ? 0 : 1).show().find('input, select').attr('disabled', false);
+    $container = $c.closest(".container");
+    $panes = $container.find(".tab-pane");
+    $tab_index = $container.find('input[name="lessons[][tab_index]"]');
+    $tab_index.val(index);
+    $panes.eq((index == 0) ? 1 : 0).hide();
+    $panes.eq((index == 0) ? 0 : 1).show();
   }
   addLessonParams = function(){ $('#add_lesson_params').before("#{j render 'new_form', {lesson_params: {}, removable: true}}"); }
   removeLessonParams = function($c){ $c.closest(".container").remove(); }

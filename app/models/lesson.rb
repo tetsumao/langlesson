@@ -51,18 +51,14 @@ class Lesson < ApplicationRecord
       self.ticket = student_user.usable_ticket
       if self.ticket.nil?
         self.errors.add(:ticket, 'エラー。使用可能なチケットがありません。')
-      else
+      elsif self.save
         # Zoomミーティング作成
         zoom_client = Zoom.new
         meeting = zoom_client.meeting_create(user_id: $zoom_user_id, type: 2, timezone: 'Asia/Tokyo',
           start_time: "#{self.date_at.strftime('%Y-%m-%d')}T#{self.period.start_time}:00",
           duration: self.period.duration,
           topic: "#{self.user.user_name}(#{self.user.id})->#{self.ticket.user.user_name}(#{self.ticket.user.id}) - #{self.summary}")
-        self.zoom_url = meeting['join_url']
-        # 通知メール
-        NotificationMailer.send_reservation_to_student(self).deliver_later
-        NotificationMailer.send_reservation_to_teacher(self).deliver_later
-        return self.save
+        return update(:zoom_url, meeting['join_url'])
       end
     end
     false

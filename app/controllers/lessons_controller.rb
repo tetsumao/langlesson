@@ -87,6 +87,9 @@ class LessonsController < ApplicationController
   def reserve
     respond_to do |format|
       if @lesson.reserve(current_user)
+        # 通知メール
+        NotificationMailer.send_reservation_to_student(self).deliver_later
+        NotificationMailer.send_reservation_to_teacher(self).deliver_later
         format.html { redirect_to teacher_lesson_path(@user, @lesson), notice: "#{Lesson.model_name.human}を予約しました。" }
       else
         format.html { render :show }
@@ -126,7 +129,7 @@ class LessonsController < ApplicationController
       params.require(:lesson).permit(:date_at, :period_id, :category_id)
     end
     def lessons_params
-      params.permit(lessons: [:date_from, :date_to, :date_at, :period_id, :category_id, period_ids: []])
+      params.permit(lessons: [:tab_index, :date_from, :date_to, :date_at, :period_id, :category_id, period_ids: []])
     end
 
     def lesson_report_params
